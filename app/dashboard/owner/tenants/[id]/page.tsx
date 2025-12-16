@@ -3,6 +3,7 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import ProtectedRoute from '@/app/components/ProtectedRoute';
 
 export default function TenantProfile() {
   const params = useParams();
@@ -107,6 +108,7 @@ export default function TenantProfile() {
   const { tenant, dues, complaints } = data;
 
   return (
+    <ProtectedRoute allowedRoles={['owner']}>
     <div className="min-h-screen bg-gray-50 p-8">
       {/* Header */}
       <button onClick={() => router.back()} className="text-sm text-gray-500 mb-6 hover:text-indigo-600 transition flex items-center gap-1">
@@ -311,6 +313,6 @@ export default function TenantProfile() {
           </div>
         </div>
       )}
-    </div>
+    </div></ProtectedRoute>
   );
 }

@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import AddTenantModal from '../../components/AddTenantModal';
 import DuesModal from '../../components/DuesModal';
 import ComplaintsModal from '../../components/ComplaintsModal';
+import ProtectedRoute from '@/app/components/ProtectedRoute';
 
 // Types
 interface RoomData {
@@ -99,6 +100,7 @@ export default function OwnerDashboard() {
   if (loading) return <div className="min-h-screen flex items-center justify-center text-gray-500">Loading Property Data...</div>;
 
   return (
+    <ProtectedRoute allowedRoles={['owner']}>
     <div className="min-h-screen bg-gray-50 pb-20">
       
       {/* 1. NAVBAR */}
@@ -252,6 +254,6 @@ export default function OwnerDashboard() {
         }}
       />
 
-    </div>
+    </div></ProtectedRoute>
   );
 }

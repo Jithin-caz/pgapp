@@ -3,6 +3,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import ProtectedRoute from '@/app/components/ProtectedRoute';
 
 export default function TenantDashboard() {
   const router = useRouter();
@@ -23,7 +24,11 @@ export default function TenantDashboard() {
       return;
     }
     const user = JSON.parse(storedUser);
-    
+    if(user.id==0)
+        {
+      router.push('/');
+      return;
+    }
     const res = await fetch(`/api/tenant/dashboard?id=${user.id}`);
     if (res.ok) {
       const json = await res.json();
@@ -95,6 +100,7 @@ export default function TenantDashboard() {
   const totalDue = pendingDues.reduce((sum: number, d: any) => sum + Number(d.amount), 0);
 
   return (
+    <ProtectedRoute allowedRoles={['tenant']}>
     <div className="min-h-screen bg-gray-50 pb-20">
       
       {/* Navbar */}
@@ -256,6 +262,6 @@ export default function TenantDashboard() {
         </div>
       )}
 
-    </div>
+    </div></ProtectedRoute>
   );
 }
