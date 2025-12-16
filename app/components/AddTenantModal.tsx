@@ -12,7 +12,14 @@ interface AddTenantModalProps {
 }
 
 export default function AddTenantModal({ isOpen, onClose, onSuccess, roomId, roomNumber }: AddTenantModalProps) {
-  const [formData, setFormData] = useState({ name: '', email: '', password: '', phone: '' });
+  // Added 'deposit' to state with default 10000
+  const [formData, setFormData] = useState({ 
+    name: '', 
+    email: '', 
+    password: '', 
+    phone: '', 
+    deposit: '10000' 
+  });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -32,9 +39,9 @@ export default function AddTenantModal({ isOpen, onClose, onSuccess, roomId, roo
 
       if (!res.ok) throw new Error('Failed to add tenant');
 
-      setFormData({ name: '', email: '', password: '', phone: '' }); // Reset form
-      onSuccess(); // Refresh parent data
-      onClose();   // Close modal
+      setFormData({ name: '', email: '', password: '', phone: '', deposit: '10000' });
+      onSuccess();
+      onClose();
     } catch (err) {
       setError('Something went wrong. Please try again.');
     } finally {
@@ -44,28 +51,24 @@ export default function AddTenantModal({ isOpen, onClose, onSuccess, roomId, roo
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm transition-opacity">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all scale-100">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
         
-        {/* Header */}
         <div className="bg-gray-50 px-6 py-4 border-b border-gray-100 flex justify-between items-center">
           <div>
             <h2 className="text-lg font-bold text-gray-800">New Tenant</h2>
-            <p className="text-sm text-gray-500">Assigning to Room <span className="font-mono text-indigo-600 font-medium">{roomNumber}</span></p>
+            <p className="text-sm text-gray-500">Room <span className="font-mono text-indigo-600 font-medium">{roomNumber}</span></p>
           </div>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition">
-            ✕
-          </button>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600">✕</button>
         </div>
 
-        {/* Form */}
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           {error && <div className="text-red-500 text-sm bg-red-50 p-2 rounded">{error}</div>}
           
           <div className="space-y-1">
-            <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Full Name</label>
+            <label className="text-xs font-semibold text-gray-500 uppercase">Full Name</label>
             <input
               required
-              className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all"
+              className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
               placeholder="e.g. John Doe"
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
@@ -74,21 +77,21 @@ export default function AddTenantModal({ isOpen, onClose, onSuccess, roomId, roo
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
-              <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Email</label>
+              <label className="text-xs font-semibold text-gray-500 uppercase">Email</label>
               <input
                 type="email"
                 required
-                className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
                 placeholder="john@example.com"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
               />
             </div>
             <div className="space-y-1">
-              <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Phone</label>
+              <label className="text-xs font-semibold text-gray-500 uppercase">Phone</label>
               <input
                 required
-                className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
                 placeholder="98765..."
                 value={formData.phone}
                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
@@ -97,11 +100,22 @@ export default function AddTenantModal({ isOpen, onClose, onSuccess, roomId, roo
           </div>
 
           <div className="space-y-1">
-            <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Temporary Password</label>
+            <label className="text-xs font-semibold text-gray-500 uppercase">Security Deposit (₹)</label>
+            <input
+              type="number"
+              required
+              className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none font-mono text-indigo-700 font-bold bg-indigo-50/30"
+              value={formData.deposit}
+              onChange={(e) => setFormData({ ...formData, deposit: e.target.value })}
+            />
+          </div>
+
+          <div className="space-y-1">
+            <label className="text-xs font-semibold text-gray-500 uppercase">Temporary Password</label>
             <input
               type="password"
               required
-              className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+              className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
               placeholder="••••••••"
               value={formData.password}
               onChange={(e) => setFormData({ ...formData, password: e.target.value })}
@@ -112,16 +126,16 @@ export default function AddTenantModal({ isOpen, onClose, onSuccess, roomId, roo
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-4 py-2 text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 font-medium transition-colors"
+              className="flex-1 px-4 py-2 text-gray-700 bg-white border rounded-lg hover:bg-gray-50"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 px-4 py-2 text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 font-medium shadow-sm shadow-indigo-200 transition-all disabled:opacity-50"
+              className="flex-1 px-4 py-2 text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 shadow-indigo-200 shadow-sm"
             >
-              {loading ? 'Saving...' : 'Confirm Assignment'}
+              {loading ? 'Saving...' : 'Confirm'}
             </button>
           </div>
         </form>

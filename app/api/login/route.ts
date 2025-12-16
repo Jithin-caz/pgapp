@@ -6,8 +6,8 @@ export async function POST(request: Request) {
   const { email, password } = await request.json();
 
   // 1. HARDCODED OWNER CHECK
-  const OWNER_EMAIL = "admin@pg.com";
-  const OWNER_PASS = "admin123"; 
+  const OWNER_EMAIL = process.env.OWNER_EMAIL
+  const OWNER_PASS = process.env.OWNER_PASSWORD; 
 
   if (email === OWNER_EMAIL && password === OWNER_PASS) {
     return NextResponse.json({ 

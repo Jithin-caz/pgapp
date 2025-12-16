@@ -1,21 +1,26 @@
+// app/api/tenants/[id]/route.ts
 import { NextResponse } from 'next/server';
 import { sql } from '@/lib/db';
 
-// 1. Update the type definition to wrap params in Promise
-// 2. Await params inside the function
-
 export async function GET(
   request: Request,
-  { params }: { params: Promise<{ id: string }> } // <--- Type changed to Promise
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    // Await the params object before accessing properties
     const { id } = await params; 
     const tenantId = id;
 
-    // 1. Fetch Basic Tenant Info & Room
+    // 1. Fetch Basic Tenant Info & Room (Added t.deposit here)
     const tenantResult = await sql`
-      SELECT t.id, t.name, t.email, t.phone, t.joined_at, r.room_number, r.id as room_id
+      SELECT 
+        t.id, 
+        t.name, 
+        t.email, 
+        t.phone, 
+        t.deposit, 
+        t.joined_at, 
+        r.room_number, 
+        r.id as room_id
       FROM tenants t
       LEFT JOIN rooms r ON t.room_id = r.id
       WHERE t.id = ${tenantId}
@@ -51,10 +56,9 @@ export async function GET(
 
 export async function DELETE(
   request: Request,
-  { params }: { params: Promise<{ id: string }> } // <--- Type changed to Promise
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    // Await the params object here as well
     const { id } = await params;
     const tenantId = id;
 

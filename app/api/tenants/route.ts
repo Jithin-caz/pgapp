@@ -4,16 +4,21 @@ import { sql } from '@/lib/db';
 
 export async function POST(request: Request) {
   try {
-    const { name, email, password, phone, roomId } = await request.json();
+    // 1. Destructure deposit from body
+    const { name, email, password, phone, roomId, deposit } = await request.json();
 
-    // Transaction: 1. Create Tenant, 2. Update Room Status
+    // 2. Include deposit in the INSERT query
     await sql.transaction([
-      sql`INSERT INTO tenants (name, email, password_hash, phone, room_id) VALUES (${name}, ${email}, ${password}, ${phone}, ${roomId})`,
+      sql`
+        INSERT INTO tenants (name, email, password_hash, phone, room_id, deposit) 
+        VALUES (${name}, ${email}, ${password}, ${phone}, ${roomId}, ${deposit})
+      `,
       sql`UPDATE rooms SET status = 'occupied' WHERE id = ${roomId}`
     ]);
 
     return NextResponse.json({ success: true });
   } catch (error) {
+    console.error(error);
     return NextResponse.json({ error: 'Error adding tenant' }, { status: 500 });
   }
 }
