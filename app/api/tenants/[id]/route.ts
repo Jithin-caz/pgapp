@@ -1,13 +1,17 @@
-// app/api/tenants/[id]/route.ts
 import { NextResponse } from 'next/server';
 import { sql } from '@/lib/db';
 
+// 1. Update the type definition to wrap params in Promise
+// 2. Await params inside the function
+
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> } // <--- Type changed to Promise
 ) {
   try {
-    const tenantId = params.id;
+    // Await the params object before accessing properties
+    const { id } = await params; 
+    const tenantId = id;
 
     // 1. Fetch Basic Tenant Info & Room
     const tenantResult = await sql`
@@ -40,38 +44,36 @@ export async function GET(
     return NextResponse.json({ tenant, dues, complaints });
 
   } catch (error) {
+    console.error('API Error:', error);
     return NextResponse.json({ error: 'Database Error' }, { status: 500 });
   }
 }
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> } // <--- Type changed to Promise
 ) {
   try {
-    const tenantId = params.id;
+    // Await the params object here as well
+    const { id } = await params;
+    const tenantId = id;
 
-    // Transaction: 
-    // 1. Get room_id to free it up
-    // 2. Delete tenant (Cascade will handle dues/complaints if set, but we also update room)
-    // 3. Set room status to available
-    
-    await sql.transaction(async (tx) => {
-        // Get the room ID first
-        const t = await tx`SELECT room_id FROM tenants WHERE id = ${tenantId}`;
-        const roomId = t[0]?.room_id;
-
-        // Delete the tenant
-        await tx`DELETE FROM tenants WHERE id = ${tenantId}`;
-
-        // Free up the room
-        if (roomId) {
-            await tx`UPDATE rooms SET status = 'available', current_occupancy = 0 WHERE id = ${roomId}`;
-        }
-    });
+    // Transaction: Delete tenant and free up room
+    await sql`
+      WITH deleted_tenant AS (
+        DELETE FROM tenants 
+        WHERE id = ${tenantId} 
+        RETURNING room_id
+      )
+      UPDATE rooms 
+      SET status = 'available', current_occupancy = 0
+      FROM deleted_tenant
+      WHERE rooms.id = deleted_tenant.room_id
+    `;
 
     return NextResponse.json({ success: true });
   } catch (error) {
+    console.error('Delete error:', error);
     return NextResponse.json({ error: 'Failed to delete tenant' }, { status: 500 });
   }
 }

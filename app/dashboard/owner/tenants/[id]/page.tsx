@@ -193,7 +193,7 @@ export default function TenantProfile() {
 
       {/* Add Due Modal */}
       {isDueModalOpen && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 text-black bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-xl shadow-xl w-full max-w-sm p-6">
             <h2 className="text-lg font-bold mb-4">Add New Due</h2>
             <form onSubmit={handleAddDue} className="space-y-4">
